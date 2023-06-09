@@ -1,31 +1,36 @@
 from django.contrib import admin
 
-from .models import Favorite, Ingredient, Recipe, ShoppingCart, Subscribe, Tag
+from .models import (Favorite, Ingredient, Recipe,
+                     RecipeIngredient, ShoppingCart, Tag)
+
+
+class RecipeIngredientInline(admin.TabularInline):
+    model = RecipeIngredient
+    min_num = 1
+    max_num = 50
+    extra = 1
+
+
+class FavoriteInline(admin.TabularInline):
+    # model = Recipe.is_favorited.through
+    model = Favorite
+    extra = 0
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    # list_display = ('pk', 'ingredients', 'tags', 'image', 'name',
-                    # 'text', 'cooking_time', 'author')
-    # list_editable = ('group',)
-    # search_fields = ('author', 'tags')
-    # list_filter = ('pub_date',)
+    inlines = (RecipeIngredientInline, FavoriteInline,)
+    list_display = ('name', 'author', 'times_favorited')
+    list_filter = ('name', 'author', 'tags')
     empty_value_display = '-пусто-'
-#    Перечисляем поля, которые должны отображаться в админке
-    # list_display = ('text', 'pub_date', 'author') 
-    # Добавляем интерфейс для поиска по тексту постов
-    # search_fields = ('text',) 
-    # Добавляем возможность фильтрации по дате
-    # list_filter = ('pub_date',) 
 
 
-class SubcribeAdmin(admin.ModelAdmin):
-    list_display = ('user', 'following')
-    list_editable = ('user', 'following')
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = ('name', 'measurement_unit')
+    list_filter = ('name',)
 
 
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Tag)
-admin.site.register(Ingredient)
+admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Favorite)
-admin.site.register(Subscribe)
 admin.site.register(ShoppingCart)
