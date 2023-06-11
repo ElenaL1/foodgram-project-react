@@ -115,7 +115,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField()
-    # ingredients = RecipeIngredientSerializer()
+    # ingredients = RecipeIngredientSerializer(
+    #     many=True, read_only=True, source='recipes')
     image = Base64ImageField(required=False, allow_null=True)
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
@@ -196,6 +197,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             RecipeIngredient.objects.create(
                 # ingredient_id=ingredient['ingredient'].id,
                 recipe=recipe,
+                # ingredient=Ingredient.objects.get(
+                #    pk=ingredient['ingredient'].id),
                 ingredient=ingredient['ingredient'],
                 amount=ingredient['amount'])
         recipe.save()
@@ -225,10 +228,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         return RecipeSerializer(
             instance, context={'request': request}).data
-
-    # def to_representation(self, instance):
-    #     serializer = RecipeSerializer('instance')
-    #     return serializer.data
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
