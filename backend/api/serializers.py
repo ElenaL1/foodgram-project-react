@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
 from rest_framework import serializers
 from django.core.files.base import ContentFile
+from rest_framework.validators import UniqueTogetherValidator
 # from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer
 from recipes.models import (Favorite, Ingredient, Recipe,
@@ -197,8 +198,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             RecipeIngredient.objects.create(
                 # ingredient_id=ingredient['ingredient'].id,
                 recipe=recipe,
-                # ingredient=Ingredient.objects.get(
-                #    pk=ingredient['ingredient'].id),
                 ingredient=ingredient['ingredient'],
                 amount=ingredient['amount'])
         recipe.save()
@@ -210,17 +209,16 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         """
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
-        instance.tags.clear()  # удалаяем все теги для данного рецепта из связанной таблицы
-        instance.tags.add(*tags_data)  # добавляем tag в связанную таблицу
+        instance.tags.clear()
+        instance.tags.set(tags_data)
         RecipeIngredient.objects.filter(recipe=instance).delete()
         for field, value in validated_data.items():
             setattr(instance, field, value)
         for ingredient in ingredients_data:
             RecipeIngredient.objects.create(
-                # ingredient=ingredient.get('id'),
                 recipe=instance,
-                ingredient=ingredient,
-                amount=ingredient.get('amount'))
+                ingredient=ingredient['ingredient'],
+                amount=ingredient['amount'])
         instance.save()
         return instance
 
@@ -230,13 +228,62 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             instance, context={'request': request}).data
 
 
+class RecipeShortSerializer(serializers.ModelSerializer):
+    """Сериализатор для вывода информации о добавленном рецепте .
+    """
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
 class SubscribeSerializer(serializers.ModelSerializer):
     # is_subscribed = (many=True)
     ...
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
+    """Сериализатор для добавления рецептов в список покупок.
+    """
+    class Meta:
+        model = ShoppingCart
+        fields = ('user', 'recipe')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=ShoppingCart.objects.all(),
+                fields=('user', 'recipe'),
+                message='Этот рецепт уже добавлен в список покупок'
+            )
+        ]
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        return RecipeShortSerializer(
+            instance, context={'request': request}).data
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    """Сериализатор для добавления рецептов в избранное.
+    """
+    class Meta:
+        model = Favorite
+        fields = ('user', 'recipe')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Favorite.objects.all(),
+                fields=('user', 'recipe'),
+                message='Этот рецепт уже добавлен в избранное'
+            )
+        ]
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        return RecipeShortSerializer(
+            instance, context={'request': request}).data
+
+
+class DownloadShoppingCartSerializer(serializers.ModelSerializer):
     ...
+
     # def get_ingredients(self, instance):
     #     """Суммирование ингредиентов в списке покупок."""
     #     result = []

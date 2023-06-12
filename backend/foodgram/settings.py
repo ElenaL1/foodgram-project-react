@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-ieuvg$om4&5%=s_a4ou(zd(gn+&p9@-*jf9j0_kbc!$w7h6oxg
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://localhost', 'https://127.0.0.1:8000']
+CSRF_TRUSTED_ORIGINS = ['https://localhost', 'https://127.0.0.1:8000', 'https://127.0.0.1']
 INTERNAL_IPS = ['127.0.0.1', ]
 
 
@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'debug_toolbar',
+    'django_filters',
     'recipes.apps.RecipesConfig',
     'users.apps.UsersConfig',
     'rest_framework',
@@ -58,7 +58,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'foodgram.urls'
@@ -157,7 +156,6 @@ DJOSER = {
     },
     'SERIALIZERS': {
         'user_create': 'api.serializers.CustomUserCreateSerializer',
-        # 'user_create': 'api.serializers.CustomUserSerializer',
         'user': 'api.serializers.CustomUserSerializer',
         'current_user': 'api.serializers.CustomUserSerializer',
     },

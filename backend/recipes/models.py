@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
 from colorfield.fields import ColorField
+from django.db.models import UniqueConstraint
 
 User = get_user_model()
 
@@ -119,7 +120,7 @@ class ShoppingCart(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='автор рецепта',
+        verbose_name='владелец корзины',
         related_name='user_in_shopping_cart')
     # related_name='user_shopping_cart')
     pub_date = models.DateTimeField(
@@ -133,6 +134,8 @@ class ShoppingCart(models.Model):
         ordering = ("-pub_date",)
         verbose_name = "список покупок"
         verbose_name_plural = "список покупок"
+        UniqueConstraint(fields=['user', 'recipe'],
+                         name='unique_shoppingcart_recipe')
 
 
 class Favorite(models.Model):
@@ -161,3 +164,5 @@ class Favorite(models.Model):
         ordering = ("recipe",)
         verbose_name = "добавлен в избанное"
         verbose_name_plural = "добавлен в избранное"
+        UniqueConstraint(fields=['user', 'recipe'],
+                         name='unique_favorite_recipe')
