@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
+
   nginx:
     image: nginx:1.19.3
     ports:
@@ -18,3 +19,4 @@ services:
       - ../backend/media/recipes/:/usr/share/nginx/media/
     extra_hosts:
         - "host.docker.internal:host-gateway"
+
