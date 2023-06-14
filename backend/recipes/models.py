@@ -1,9 +1,9 @@
-from django.core.validators import MinValueValidator
-from django.contrib.auth import get_user_model
-from django.db import models
-from django.utils import timezone
 from colorfield.fields import ColorField
+from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
+from django.db import models
 from django.db.models import UniqueConstraint
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -89,6 +89,8 @@ class Recipe(models.Model):
         ordering = ("-pub_date",)
         verbose_name = "рецепт"
         verbose_name_plural = "рецепты"
+        # UniqueConstraint(fields=['author', 'name'],
+        #                  name='unique_author_recipe')
 
     def __str__(self):
         return self.name
@@ -108,6 +110,8 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = "ингредиент рецепта"
         verbose_name_plural = "ингредиенты рецепта"
+        UniqueConstraint(fields=['recipe', 'ingredient'],
+                         name='unique_recipe_ingredient')
 
 
 class ShoppingCart(models.Model):

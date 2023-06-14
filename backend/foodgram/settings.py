@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
+
 # from rest_framework.pagination import PageNumberPagination
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -137,20 +138,10 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 6,
 }
 
-# AUTH_USER_MODEL = 'user.CustomUser'
-
-# AUTHENTICATION_BACKENDS = (
-#    "django.contrib.auth.backends.ModelBackend",
-#    "allauth.account.auth_backends.AuthenticationBackend"
-# )
-
 DJOSER = {
     'HIDE_USERS': False,
     'LOGIN_FIELD': 'email',
     'PERMISSIONS': {
-        # 'user': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
-        # 'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
-        # 'user': ['rest_framework.permissions.IsAuthenticated'],  правильный вариант
         'user': ['rest_framework.permissions.AllowAny'],
         'user_list': ['rest_framework.permissions.AllowAny'],
     },
@@ -161,21 +152,6 @@ DJOSER = {
     },
 }
 
-# https://djoser.readthedocs.io/en/latest/settings.html
-# DJOSER = {
-#     'HIDE_USERS': False,
-#     'PERMISSIONS': {
-
-#     'user': ['rest_framework.permissions.IsAuthenticated'],
-#     'user_list': ['rest_framework.permissions.IsAuthenticated'],
-#     },
-#     'SERIALIZERS': {
-#         'user_create': 'core.serializers.UserCreateSerializer',
-#         'current_user': 'core.serializers.UserSerializer',
-#         'user': 'core.serializers.CurrentUserSerializer',
-
-#     }
-# }
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -199,13 +175,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = '587'
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', default='django@unchain.ed')
-# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', default='password')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
