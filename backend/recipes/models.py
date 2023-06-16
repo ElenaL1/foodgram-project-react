@@ -1,9 +1,9 @@
 from colorfield.fields import ColorField
+from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import UniqueConstraint
-from django.utils import timezone
 
 User = get_user_model()
 
@@ -19,16 +19,15 @@ class Ingredient(models.Model):
         verbose_name_plural = "ингредиенты"
 
     def __str__(self):
-        return f'{self.name}, {self.measurement_unit}'
+        return f'{self.name}, {self.measurement_unit}'[
+            :settings.MAX_LINE_LENGTH]
 
 
 class Tag(models.Model):
     """Модель теги."""
     name = models.CharField('название', unique=True, max_length=200)
-    # color = models.CharField('цвет в HEX', unique=True,
-    #                          max_length=7, null=True)
     color = ColorField('цвет в HEX', unique=True)
-    slug = models.SlugField('уникальный слаг', unique=True, null=True)
+    slug = models.SlugField('уникальный слаг', unique=True)
 
     class Meta:
         ordering = ("name",)
@@ -57,7 +56,14 @@ class Recipe(models.Model):
     )
     text = models.TextField('описание')
     cooking_time = models.PositiveSmallIntegerField(
-        'время приготовления (в минутах)')
+        'время приготовления (в минутах)',
+        validators=[
+            MinValueValidator(settings.MIN_COOKING_TIME,
+                              'Время приготовления должно быть больше нуля'),
+            MaxValueValidator(settings.MAX_COOKING_TIME,
+                              f'Время приготовления не должно превышать\
+                              {settings.MAX_COOKING_TIME} мин.')]
+    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -76,9 +82,7 @@ class Recipe(models.Model):
         related_name="is_in_shopping_cart")
     pub_date = models.DateTimeField(
         verbose_name='дата публикации',
-        # auto_now_add=True,
-        db_index=True,
-        default=timezone.now
+        auto_now_add=True,
     )
 
     def times_favorited(self):
@@ -89,8 +93,8 @@ class Recipe(models.Model):
         ordering = ("-pub_date",)
         verbose_name = "рецепт"
         verbose_name_plural = "рецепты"
-        # UniqueConstraint(fields=['author', 'name'],
-        #                  name='unique_author_recipe')
+        UniqueConstraint(fields=['author', 'name'],
+                         name='unique_author_recipe')
 
     def __str__(self):
         return self.name
@@ -105,7 +109,8 @@ class RecipeIngredient(models.Model):
                                    verbose_name="ингредиент",)
     amount = models.PositiveSmallIntegerField(
         'количество', validators=[MinValueValidator(
-            1, 'Количество ингредиентов не может быть нулевым')])
+            settings.MIN_INGREDIENT_AMOUNT,
+            'Количество ингредиентов не может быть нулевым')])
 
     class Meta:
         verbose_name = "ингредиент рецепта"
@@ -125,13 +130,10 @@ class ShoppingCart(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='владелец корзины',
-        related_name='user_in_shopping_cart')
-    # related_name='user_shopping_cart')
+        related_name='user_shopping_cart')
     pub_date = models.DateTimeField(
         verbose_name='дата публикации',
-        # auto_now_add=True,
-        # db_index=True,
-        default=timezone.now
+        auto_now_add=True
     )
 
     class Meta:
@@ -159,9 +161,7 @@ class Favorite(models.Model):
     )
     pub_date = models.DateTimeField(
         verbose_name='дата публикации',
-        # auto_now_add=True,
-        # db_index=True,
-        default=timezone.now
+        auto_now_add=True
     )
 
     class Meta:

@@ -27,9 +27,8 @@ User = get_user_model()
 
 class CustomUserViewSet(UserViewSet):
     permission_classes = (IsAuthenticated,)
-    pagination_class = CustomPagination
 
-    @action(detail=False)
+    @action(detail=False, pagination_class=CustomPagination)
     def subscriptions(self, request):
         queryset = User.objects.filter(followed__user=request.user)
         page = self.paginate_queryset(queryset)
@@ -64,6 +63,7 @@ class TagViewSet(viewsets.ModelViewSet):
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    filter_backends = (DjangoFilterBackend,)
     search_fields = ('^name',)
 
 
@@ -71,7 +71,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = CustomPagination
     filterset_class = RecipeFilter
-    filter_backends = (DjangoFilterBackend,)
+    # filter_backends = (DjangoFilterBackend,)
     permission_classes = (IsAuthorOrReadOnly,)
 
     def perform_create(self, serializer):
@@ -81,7 +81,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
-        if self.action in ['list', 'retrieve']:
+        if self.action in ('list', 'retrieve'):
             return RecipeSerializer
         return RecipeCreateSerializer
 
@@ -144,6 +144,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                          'total_amount'))
         file_data = [f'Список покупок пользователя: {user}']
         for ingredient in ingredients:
+            # ingredient[0] = ingredient[0].capitalize()
             file_data.append(
                 f'{ingredient[0]} ({ingredient[1]}) - {ingredient[2]}'
                 )

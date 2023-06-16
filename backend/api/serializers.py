@@ -2,7 +2,7 @@ import base64
 
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
-from django.db import IntegrityError, transaction
+from django.db import transaction
 
 from djoser.serializers import UserSerializer
 from rest_framework import serializers
@@ -10,6 +10,7 @@ from rest_framework import serializers
 from recipes.models import (Ingredient, Recipe,
                             RecipeIngredient, Tag)
 from users.models import Subscribe
+from .utils import UserCreateMixin
 
 User = get_user_model()
 
@@ -24,13 +25,9 @@ class CustomUserSerializer(UserSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        if not request or request.user.is_anonymous:
-            return False
-        user = request.user
-        return Subscribe.objects.filter(
-            following=obj,
-            user=user
-        ).exists()
+        return (request and request.user.is_authenticated
+                and Subscribe.objects.filter(following=obj, user=request.user
+                                             ).exists())
 
 
 class RecipeShortSerializer(serializers.ModelSerializer):
@@ -57,10 +54,9 @@ class SubsribeUserSerializer(CustomUserSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        if not request or request.user.is_anonymous:
-            return False
-        return Subscribe.objects.filter(
-            following=obj, user=request.user).exists()
+        return (request and request.user.is_authenticated
+                and Subscribe.objects.filter(following=obj, user=request.user
+                                             ).exists())
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
@@ -75,21 +71,9 @@ class SubsribeUserSerializer(CustomUserSerializer):
         return serializer.data
 
 
-class UserCreateMixin:
-    def create(self, validated_data):
-        try:
-            user = self.perform_create(validated_data)
-        except IntegrityError:
-            self.fail("cannot_create_user")
-        return user
-
-    def perform_create(self, validated_data):
-        with transaction.atomic():
-            user = User.objects.create_user(**validated_data)
-        return user
-
-
 class CustomUserCreateSerializer(UserCreateMixin, serializers.ModelSerializer):
+    """Сериализатор Django по умолчанию для корректного сохранения пароля.
+    """
     password = serializers.CharField(style={"input_type": "password"},
                                      write_only=True)
 
@@ -97,6 +81,13 @@ class CustomUserCreateSerializer(UserCreateMixin, serializers.ModelSerializer):
         model = User
         fields = ('email', 'id', 'username',
                   'first_name', 'last_name', 'password')
+
+    def validate(self, data):
+        if not data.get('last_name'):
+            raise serializers.ValidationError('Нужно указать фамилию.')
+        if not data.get('first_name'):
+            raise serializers.ValidationError('Нужно указать имя.')
+        return data
 
 
 class Base64ImageField(serializers.ImageField):
@@ -145,8 +136,6 @@ class RecipeIngredientShortSerializer(serializers.ModelSerializer):
     """
     id = serializers.PrimaryKeyRelatedField(source='ingredient',
                                             queryset=Ingredient.objects.all())
-    # id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    # amount = serializers.IntegerField()
 
     class Meta:
         model = RecipeIngredient
@@ -159,8 +148,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField()
-    # ingredients = RecipeIngredientSerializer(
-    #     many=True, read_only=True, source='recipes')
     image = Base64ImageField(required=False, allow_null=True)
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
@@ -216,6 +203,15 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         if not data.get('tags'):
             raise serializers.ValidationError(
                 'Нужно указать тег.')
+        inrgedients_list = [
+            ingredient['ingredient'].id for ingredient in data.get(
+                'ingredients')]
+        if len(inrgedients_list) != len(set(inrgedients_list)):
+            raise serializers.ValidationError(
+                'Такой ингредиент уже есть в рецепте.')
+        tag_list = [tag.id for tag in data.get('tags')]
+        if len(tag_list) != len(set(tag_list)):
+            raise serializers.ValidationError('Такой тег уже есть в рецепте.')
         return data
 
     @transaction.atomic
@@ -226,10 +222,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         tags_data = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags_data)
-        # recipe.tags.add(**tags_data)
         for ingredient in ingredients_data:
             RecipeIngredient.objects.create(
-                # ingredient_id=ingredient['ingredient'].id,
                 recipe=recipe,
                 ingredient=ingredient['ingredient'],
                 amount=ingredient['amount'])
@@ -254,11 +248,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 amount=ingredient['amount'])
         instance.save()
         return instance
-
-    # def to_representation(self, instance):
-    #     request = self.context.get('request')
-    #     return RecipeSerializer(
-    #         instance, context={'request': request}).data
 
     def to_representation(self, instance):
         self.fields.pop('ingredients')
