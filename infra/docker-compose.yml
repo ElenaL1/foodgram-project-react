@@ -1,15 +1,41 @@
-version: '3.3'
-services:
+version: '3.8'
 
+services:
+  db:
+    image: postgres:13.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    # ports:
+    #   - "5432:5432"
+    env_file:
+      - ./.env
+  
   frontend:
+    container_name: frontend
+    # image: zali1813/foodgram_frontend   раскомментить, убрать build
     build:
       context: ../frontend
       dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
 
+  backend:
+    container_name: backend
+    # image: zali1813/foodgram_backend:v1
+    build:  
+      context: ../backend
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - static_value:/app/static/
+      - media_value:/app/media/
+    depends_on:
+      - db
+    env_file:
+      - ./.env
+  
   nginx:
-    image: nginx:1.19.3
+    image: nginx:1.21.3-alpine
     ports:
       - "80:80"
     volumes:
@@ -17,6 +43,14 @@ services:
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
       - ../backend/media/:/usr/share/nginx/media/
-    extra_hosts:
-        - "host.docker.internal:host-gateway"
+      - static_value:/usr/share/nginx/static/
+      - media_value:/usr/share/nginx/media/
+    depends_on:
+      - frontend
+      - backend
 
+volumes:
+  static_value:
+  media_value:
+  postgres_data:
+  

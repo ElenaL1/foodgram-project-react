@@ -1,40 +1,38 @@
 # проект Foodrgam
+![foodrgam](https://github.com/ElenaL1/foodgram-project-react/actions/workflows/main.yml/badge.svg?event=push)
+
 Сайт Foodgram, «Продуктовый помощник» - это онлайн-сервис и API для него. На этом сервисе пользователи смогут публиковать рецепты, подписываться на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное», а перед походом в магазин скачивать сводный список продуктов, необходимых для приготовления одного или нескольких выбранных блюд.
 
 ## Стек технологий:
-Python 3.10, Django 4.2, DRF, Djoser, PostgreSQL, Ubuntu, Docker, Docker-compose, nginx, gunicorn
+Python 3.10, Django 4.2, DRF, Djoser, PostgreSQL, Ubuntu, Docker, Docker-compose, nginx, gunicorn, Github Actions, Yandex Cloud
 
 ## Развертывание проекта
+Запуск проекта через Github Actions.
 
-Клонирование репозитория:
+На сервере нужно установить docker и docker-compose. Скопировать на сервер файлы docker-compose.yaml и nginx/default.conf:
 ```
-git clone git@github.com:ElenaL1/foodgram-project-react/
-```
-В папке infra создать файл .env, в в котором должны содержаться следующие переменные окружения:
-```
-DB_ENGINE=django.db.backends.postgresql # указываем, что работаем с postgresql
-DB_NAME=postgres # имя базы данных
-POSTGRES_USER=postgres # логин для подключения к базе данных
-POSTGRES_PASSWORD=postgres # пароль для подключения к БД (установите свой)
-DB_HOST=db # название сервиса (контейнера)
-DB_PORT=5432 # порт для подключения к БД 
-SECRET_KEY=key
+scp docker-compose.yaml <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/docker-compose.yaml
+scp default.conf <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/nginx/default.conf
 ```
 
-Запуск docker-compose из папки infra:
+Далее на сервере нужно запустить следущие команды (выполнить миграции, создать суперпользователя, собрать статитку, загрузить данные):
 ```
-docker-compose up -d --build
+sudo docker-compose exec web python manage.py migrate
+sudo docker-compose exec web python manage.py createsuperuser
+sudo docker-compose exec web python manage.py collectstatic --no-input
+sudo docker-compose exec web python manage.py loaddata fixtures.json
 ```
 
-В контейнере `backend`  выполнить миграции, импортировать базу, создать суперпользователя и собрать статику:
-```
-docker-compose exec web python manage.py migrate
-docker-compose exec web python manage.py csv_to_bd
-docker-compose exec web python manage.py createsuperuser
-docker-compose exec web python manage.py collectstatic --no-input 
-```
-Проект доступен по адресу http://localhost/.
-zali3.ddns.net
+## Workflow состоит из четырёх шагов:
+    Проверка кода на соответствие PEP8 
+    Сборка и публикация образа бекенда на DockerHub.
+    Автоматический деплой на удаленный сервер.
+    Отправка уведомления в телеграм-чат.
+Деплой сервера запускается при обновление репозитория (git push).
+
+
+Проект доступен по [адресу](http://158.160.44.210/)
+
 
 ###Примеры запросов к базе:
 Пример POST-запроса на опубликование рецепта: POST ... /api/recipes/
@@ -57,8 +55,7 @@ zali3.ddns.net
 }
 ```
 Более подробно информацию об эндпоинтах и примерах запросов и ответов можно посмотреть в 
-[http://localhost/api/docs/](http://localhost/api/docs/redoc.html)
+[redoc](http://158.160.44.210/redoc.html)
 
-###
-Автор проекта: Елена Ламберт
+### Автор проекта: Елена Ламберт
 
