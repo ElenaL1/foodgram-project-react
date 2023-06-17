@@ -133,6 +133,6 @@ dmypy.json
 
 node_modules/
 
-.vscode/
-/.vscode/
-.vscode
+# .vscode/
+# /.vscode/
+# .vscode
