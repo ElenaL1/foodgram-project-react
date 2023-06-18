@@ -13,8 +13,8 @@ services:
     image: zali1813/foodgram_frontend:v1
     volumes:
       - ../frontend/:/app/result_build/
-    depends_on:
-      - db
+    # depends_on:
+    #   - db
 
   backend:
     container_name: backend
@@ -23,8 +23,8 @@ services:
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
-    depends_on:
-      - frontend
+    # depends_on:
+    #   - frontend
     env_file:
       - ./.env
   
@@ -38,8 +38,8 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static_value:/usr/share/nginx/static/
       - media_value:/usr/share/nginx/media/
-    depends_on:
-      - backend
+    # depends_on:
+    #   - backend
 
 volumes:
   static_value:
