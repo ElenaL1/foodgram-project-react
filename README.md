@@ -9,18 +9,18 @@ Python 3.10, Django 4.2, DRF, Djoser, PostgreSQL, Ubuntu, Docker, Docker-compose
 ## Развертывание проекта
 Запуск проекта через Github Actions.
 
-На сервере нужно установить docker и docker-compose. Скопировать на сервер файлы docker-compose.yaml и nginx/default.conf:
+На сервере нужно установить docker и docker-compose. Скопировать на сервер файлы docker-compose.yml и nginx.conf:
 ```
-scp docker-compose.yaml <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/docker-compose.yaml
-scp default.conf <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/nginx/default.conf
+scp docker-compose.yml <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/docker-compose.yaml
+scp default.conf <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/nginx.conf
 ```
 
 Далее на сервере нужно запустить следущие команды (выполнить миграции, создать суперпользователя, собрать статитку, загрузить данные):
 ```
-sudo docker-compose exec web python manage.py migrate
-sudo docker-compose exec web python manage.py createsuperuser
-sudo docker-compose exec web python manage.py collectstatic --no-input
-sudo docker-compose exec web python manage.py loaddata fixtures.json
+sudo docker-compose exec foodgram_backend python manage.py migrate
+sudo docker-compose exec foodgram_backend python manage.py createsuperuser
+sudo docker-compose exec foodgram_backend python manage.py collectstatic --no-input
+sudo docker-compose exec backend python manage.py loaddata fixtures.json -->
 ```
 
 ## Workflow состоит из четырёх шагов:
