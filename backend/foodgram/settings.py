@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv('SECRET_KEY',)
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://localhost', 'https://158.160.44.210', 'https://127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['https://localhost', '158.160.44.210', 'https://127.0.0.1']
 INTERNAL_IPS = ['158.160.44.210', ]
 
 
