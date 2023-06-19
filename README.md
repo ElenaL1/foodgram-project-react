@@ -17,9 +17,9 @@ scp default.conf <логин_на_сервере>@<IP_сервера>:/home/<л�
 
 Далее на сервере нужно запустить следущие команды (выполнить миграции, создать суперпользователя, собрать статитку, загрузить данные):
 ```
-sudo docker-compose exec foodgram_backend python manage.py migrate
-sudo docker-compose exec foodgram_backend python manage.py createsuperuser
-sudo docker-compose exec foodgram_backend python manage.py collectstatic --no-input
+sudo docker-compose exec backend python manage.py migrate
+sudo docker-compose exec backend python manage.py createsuperuser
+sudo docker-compose exec backend python manage.py collectstatic --no-input
 sudo docker-compose exec backend python manage.py loaddata fixtures.json -->
 ```
 
