@@ -176,6 +176,15 @@ class RecipeSerializer(serializers.ModelSerializer):
             'id', 'tags', 'author',  'ingredients', 'is_favorited',
             'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time')
 
+    def to_representation(self, instance):
+        self.fields.pop('ingredients')
+        self.fields['tags'] = TagSerializer(many=True)
+        representation = super().to_representation(instance)
+        representation['ingredients'] = RecipeIngredientSerializer(
+            RecipeIngredient.objects.filter(recipe=instance).all(), many=True
+            ).data
+        return representation
+
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для создания, изменения и удаления рецепта.
