@@ -17,10 +17,8 @@ class Command(BaseCommand):
     help = 'Команда для переноса данных из csv файла в БД'
 
     def handle(self, *args, **options):
-        # with open(os.path.join(os.path.dirname(settings.BASE_DIR),
-        #          'data', 'ingredients.csv'),
-        with open(os.path.join((settings.BASE_DIR),
-                  'ingredients.csv'),
+        with open(os.path.join(os.path.dirname(settings.BASE_DIR),
+                  'data', 'ingredients.csv'),
                   encoding='utf-8') as csv_file:
             reader = csv.DictReader(csv_file,
                                     fieldnames=['name', 'measurement_unit'])
