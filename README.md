@@ -53,7 +53,7 @@ sudo docker-compose exec backend python manage.py loaddata dump.json
 }
 ```
 Более подробно информацию об эндпоинтах и примерах запросов и ответов можно посмотреть в 
-[redoc](http://158.160.44.210/redoc.html)
+[redoc](http://158.160.44.210/api/docs/redoc.html)
 
 ### Автор проекта: Елена Ламберт
 
