@@ -8,11 +8,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY',)
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://localhost', 'http://158.160.44.210', 'https://127.0.0.1']
-INTERNAL_IPS = ['158.160.44.210', ]
+CSRF_TRUSTED_ORIGINS = ['https://localhost', 'http://158.160.44.210',
+                        'http://127.0.0.1', 'http://127.0.0.1:8000']
+INTERNAL_IPS = ['https://127.0.0.1', 'http://158.160.44.210', ]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -60,29 +61,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DB_ENGINE'),
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT')
-    }
-}
-#     'default': {
-#        'ENGINE': os.getenv('DB_ENGINE',
-#                            default='django.db.backends.postgresql'),
-#        'NAME': os.getenv('DB_NAME', default='postgres'),
-#        'USER': os.getenv('POSTGRES_USER', default='postgres1'),
-#        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='elena99'),
-#        'HOST': os.getenv('DB_HOST', default='db'),
-#        'PORT': os.getenv('DB_PORT', default='5432'),
-#     }
-# }
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
+if DEBUG is True:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+         }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': os.getenv('DB_ENGINE'),
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('POSTGRES_USER'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+            'HOST': os.getenv('DB_HOST'),
+            'PORT': os.getenv('DB_PORT')
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -102,7 +99,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.IsAuthenticated',
         'rest_framework.permissions.AllowAny',
     ],
 
@@ -118,7 +114,7 @@ DJOSER = {
     'HIDE_USERS': False,
     'LOGIN_FIELD': 'email',
     'PERMISSIONS': {
-        'user': ['rest_framework.permissions.AllowAny'],
+        'user': ['rest_framework.permissions.IsAuthenticated'],
         'user_list': ['rest_framework.permissions.AllowAny'],
     },
     'SERIALIZERS': {

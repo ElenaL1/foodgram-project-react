@@ -4,11 +4,24 @@ from recipes.models import Recipe
 
 
 class RecipeFilter(filters.FilterSet):
-    is_favorited = filters.CharFilter(field_name='is_favorited__slug',)
-    tags = filters.CharFilter(field_name='tag__slug',)
-    is_in_shopping_cart = filters.CharFilter(
-        field_name='shopping_cart__author',)
+    tags = filters.CharFilter(field_name='tags__slug',)
+    is_favorited = filters.BooleanFilter(
+        method='filter_is_favorited')
+    is_in_shopping_cart = filters.BooleanFilter(
+        method='filter_is_in_shopping_cart')
+
+    def filter_is_favorited(self, queryset, name, value):
+        user = self.request.user
+        if value and user.is_authenticated:
+            return queryset.filter(recipe_favorited__user=user)
+        return queryset
+
+    def filter_is_in_shopping_cart(self, queryset, name, value):
+        user = self.request.user
+        if value and user.is_authenticated:
+            return queryset.filter(recipe_in_shopping_cart__user=user)
+        return queryset
 
     class Meta:
         model = Recipe
-        fields = ('is_favorited', 'author', 'is_in_shopping_cart', 'tags')
+        fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')

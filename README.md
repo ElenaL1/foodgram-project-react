@@ -20,14 +20,12 @@ scp default.conf <логин_на_сервере>@<IP_сервера>:/home/<л�
 sudo docker-compose exec backend python manage.py migrate
 sudo docker-compose exec backend python manage.py createsuperuser
 sudo docker-compose exec backend python manage.py collectstatic --no-input
-sudo docker-compose exec backend python manage.py loaddata fixtures.json -->
+sudo docker-compose exec backend python manage.py loaddata dump.json -->
 ```
 
-## Workflow состоит из четырёх шагов:
-    Проверка кода на соответствие PEP8 
+## Workflow:
     Сборка и публикация образа бекенда на DockerHub.
     Автоматический деплой на удаленный сервер.
-    Отправка уведомления в телеграм-чат.
 Деплой сервера запускается при обновление репозитория (git push).
 
 

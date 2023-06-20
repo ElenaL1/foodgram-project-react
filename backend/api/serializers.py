@@ -7,8 +7,8 @@ from django.db import transaction
 from djoser.serializers import UserSerializer
 from rest_framework import serializers
 
-from recipes.models import (Ingredient, Recipe,
-                            RecipeIngredient, Tag)
+from recipes.models import (Ingredient, Favorite, Recipe,
+                            RecipeIngredient, ShoppingCart, Tag)
 from users.models import Subscribe
 from .utils import UserCreateMixin
 
@@ -161,14 +161,14 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         """Проверка есть ли рецепт в избранном."""
         request = self.context.get('request')
-        return (request and request.user.is_authenticated
-                and request.user.user_favorited.filter(recipe=obj).exists())
+        return (request.user.is_authenticated and Favorite.objects.filter(
+            user=request.user, recipe=obj).exists())
 
     def get_is_in_shopping_cart(self, obj):
         """Проверка есть ли рецепт в списке покупок."""
         request = self.context.get('request')
-        return (request and request.user.is_authenticated and
-                request.user.is_in_shopping_cart.filter(recipe=obj).exists())
+        return (request.user.is_authenticated and ShoppingCart.objects.filter(
+                user=request.user, recipe=obj).exists())
 
     class Meta:
         model = Recipe
@@ -183,7 +183,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     ingredients = RecipeIngredientShortSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True)
-    image = Base64ImageField(use_url=True, required=False, allow_null=True)
+    image = Base64ImageField(use_url=True, required=False)
 
     class Meta:
         model = Recipe

@@ -5,11 +5,11 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from djoser.views import UserViewSet
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
@@ -58,11 +58,13 @@ class CustomUserViewSet(UserViewSet):
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    pagination_class = None
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    pagination_class = None
     filter_backends = (DjangoFilterBackend,)
     search_fields = ('^name',)
 
@@ -71,7 +73,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = CustomPagination
     filterset_class = RecipeFilter
-    # filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend,)
     permission_classes = (IsAuthorOrReadOnly,)
 
     def perform_create(self, serializer):
