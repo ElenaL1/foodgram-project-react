@@ -3,7 +3,7 @@ from django_filters import rest_framework as filters
 from recipes.models import Recipe
 
 
-class IngredientFilter(filters.FilterSet):
+class IngredientFilter(filters.SearchFilter):
     search_param = 'name'
 
 
