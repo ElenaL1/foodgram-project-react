@@ -10,14 +10,14 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 # from django_filters import rest_framework as filters
-# from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter
 from djoser.views import UserViewSet
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 from users.models import Subscribe
 
-from .filters import IngredientFilter, RecipeFilter
+from .filters import RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientSerializer, RecipeCreateSerializer,
@@ -67,10 +67,10 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
-    # filter_backends = (DjangoFilterBackend, )
-    filter_backends = (IngredientFilter,)
+    # filter_backends = (DjangoFilterBackend, ) только этот как-то работал (один)
+    # filter_backends = (IngredientFilter,)
     # filterset_class = IngredientFilter
-    # filter_backends = (SearchFilter,)
+    filter_backends = (SearchFilter,)
     search_fields = ('^name', )
 
 
