@@ -23,12 +23,6 @@ class CustomUserSerializer(UserSerializer):
         fields = ('email', 'id', 'username',
                   'first_name', 'last_name', 'is_subscribed',)
 
-    def get_object(self):
-        if self.kwargs['pk'] == 'me':
-            return self.request.user
-        else:
-            return super().get_object()
-
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         return (request and request.user.is_authenticated

@@ -71,7 +71,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
     # filter_backends = (IngredientFilter,)
     # filterset_class = IngredientFilter
     filter_backends = (SearchFilter,)
-    search_fields = ('^name', )
+    search_fields = ('^name',)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
