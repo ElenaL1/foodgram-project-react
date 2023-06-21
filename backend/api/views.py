@@ -68,17 +68,14 @@ class IngredientViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
     pagination_class = None
     filter_backends = (DjangoFilterBackend, )
-    # filter_backends = (IngredientFilter,)
     filterset_class = IngredientFilter
-    # filter_backends = (SearchFilter,)
-    # search_fields = ('^name',)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = CustomPagination
+    filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
-    # filter_backends = (DjangoFilterBackend, )
     permission_classes = (IsAuthorOrReadOnly, )
 
     def perform_create(self, serializer):
@@ -86,6 +83,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(author=self.request.user)
+    
+    # def perform_update(self, serializer):
+    #     serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
