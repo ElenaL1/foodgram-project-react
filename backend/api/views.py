@@ -9,8 +9,6 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-# from django_filters import rest_framework as filters
-# from rest_framework.filters import SearchFilter
 from djoser.views import UserViewSet
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
@@ -83,9 +81,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(author=self.request.user)
-    
-    # def perform_update(self, serializer):
-    #     serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):

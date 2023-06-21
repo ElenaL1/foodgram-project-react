@@ -212,6 +212,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         tag_list = [tag.id for tag in data.get('tags')]
         if len(tag_list) != len(set(tag_list)):
             raise serializers.ValidationError('Такой тег уже есть в рецепте.')
+        if (Recipe.objects
+                .filter(name=data.get('name'))
+                .filter(author=self.context.get('request').user)
+                .exists()):
+            raise serializers.ValidationError(
+                    'Вы уже вносили такой рецепт.')
         return data
 
     @transaction.atomic
