@@ -4,11 +4,11 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.db import transaction
 from djoser.serializers import UserSerializer
+from rest_framework import serializers
+
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredient, ShoppingCart, Tag)
-from rest_framework import serializers
 from users.models import Subscribe
-
 from .utils import UserCreateMixin
 
 User = get_user_model()
@@ -214,7 +214,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         if (Recipe.objects
                 .filter(name=data.get('name'))
                 .filter(author=self.context.get('request').user)
-                .exists()):
+                .exists()) and self.context.get('request').method != 'PATCH':
             raise serializers.ValidationError(
                     'Вы уже вносили такой рецепт. Если вы хотите\
                     внести этот рецепт, измените название!')
