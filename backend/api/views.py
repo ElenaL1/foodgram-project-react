@@ -16,7 +16,7 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 from users.models import Subscribe
 
-from .filters import RecipeFilter, IngredientFilter
+from .filters import RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientSerializer, RecipeCreateSerializer,
@@ -67,7 +67,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
     pagination_class = None
     filter_backends = (DjangoFilterBackend, )
-    filterset_class = (IngredientFilter, )
+    # filterset_class = (IngredientFilter, )
     search_fields = ('^name', )
 
 
