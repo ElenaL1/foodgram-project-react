@@ -15,6 +15,11 @@ scp docker-compose.yml <логин_на_сервере>@<IP_сервера>:/hom
 scp default.conf <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/nginx.conf
 ```
 
+## Workflow:
+    Сборка и публикация образа бекенда на DockerHub.
+    Автоматический деплой на удаленный сервер.
+Деплой сервера запускается при обновление репозитория (git push).
+
 Далее на сервере нужно запустить следущие команды (выполнить миграции, создать суперпользователя, собрать статитку, загрузить данные):
 ```
 sudo docker-compose exec backend python manage.py migrate
@@ -23,13 +28,8 @@ sudo docker-compose exec backend python manage.py collectstatic --no-input
 sudo docker-compose exec backend python manage.py loaddata dump.json
 ```
 
-## Workflow:
-    Сборка и публикация образа бекенда на DockerHub.
-    Автоматический деплой на удаленный сервер.
-Деплой сервера запускается при обновление репозитория (git push).
 
-
-Проект доступен по [адресу](http://158.160.44.210/)
+Проект доступен по [адресу](http://158.160.44.210/) (больше не поддерживается)
 
 
 ###Примеры запросов к базе:
@@ -53,7 +53,4 @@ sudo docker-compose exec backend python manage.py loaddata dump.json
 }
 ```
 Более подробно информацию об эндпоинтах и примерах запросов и ответов можно посмотреть в 
-[redoc](http://158.160.44.210/api/docs/redoc.html)
-
-### Автор проекта: Елена Ламберт
-
+[redoc](http://158.160.44.210/api/docs/redoc.html) (больше не поддерживается)

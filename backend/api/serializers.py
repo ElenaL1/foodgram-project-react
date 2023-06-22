@@ -212,12 +212,11 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         if len(tag_list) != len(set(tag_list)):
             raise serializers.ValidationError('Такой тег уже есть в рецепте.')
         if (Recipe.objects
-                .filter(name=data.get('name'))
+                .filter(name=data.get('text'))
                 .filter(author=self.context.get('request').user)
                 .exists()) and self.context.get('request').method != 'PATCH':
             raise serializers.ValidationError(
-                    'Вы уже вносили такой рецепт. Если вы хотите\
-                    внести этот рецепт, измените название!')
+                    'Вы уже вносили такой рецепт!')
         return data
 
     @transaction.atomic
